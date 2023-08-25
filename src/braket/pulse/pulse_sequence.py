@@ -19,8 +19,7 @@ from inspect import signature
 from typing import Any, Dict, List, Set, Union
 
 from openpulse import ast
-from oqpy import BitVar, PhysicalQubits, Program
-from oqpy.timing import OQDurationLiteral
+from oqpy import BitVar, PhysicalQubits, Program, convert_float_to_duration
 
 from braket.circuits.qubit_set import QubitSet
 from braket.parametric.free_parameter import FreeParameter
@@ -187,7 +186,7 @@ class PulseSequence:
         if isinstance(duration, FreeParameterExpression):
             for p in duration.expression.free_symbols:
                 self._free_parameters.add(FreeParameter(p.name))
-            duration = _FloatFreeParameterExpression(duration) * OQDurationLiteral(1)
+            duration = convert_float_to_duration(_FloatFreeParameterExpression(duration))
         if not isinstance(qubits_or_frames, QubitSet):
             if not isinstance(qubits_or_frames, list):
                 qubits_or_frames = [qubits_or_frames]
