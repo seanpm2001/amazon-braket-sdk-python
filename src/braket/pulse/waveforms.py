@@ -29,7 +29,10 @@ from braket.parametric.free_parameter_expression import (
     subs_if_free_parameter,
 )
 from braket.parametric.parameterizable import Parameterizable
-from braket.pulse.ast.free_parameters import _FreeParameterExpressionIdentifier
+from braket.pulse.ast.free_parameters import (
+    _FloatFreeParameterExpression,
+    _FreeParameterExpressionIdentifier,
+)
 
 
 class Waveform(ABC):
@@ -457,7 +460,7 @@ def _map_to_oqpy_type(
 ) -> Union[_FreeParameterExpressionIdentifier, OQPyExpression]:
     if isinstance(parameter, FreeParameterExpression):
         return (
-            OQDurationLiteral(parameter)
+            _FloatFreeParameterExpression(parameter) * OQDurationLiteral(1)
             if is_duration_type
             else _FreeParameterExpressionIdentifier(parameter)
         )

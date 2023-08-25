@@ -15,6 +15,8 @@ from typing import Dict, Union
 from openpulse import ast
 from openqasm3.ast import DurationLiteral
 from openqasm3.visitor import QASMTransformer
+from oqpy import Program, float64
+from oqpy.base import OQPyExpression
 
 from braket.parametric.free_parameter_expression import FreeParameterExpression
 
@@ -29,6 +31,16 @@ class _FreeParameterExpressionIdentifier(ast.Identifier):
     @property
     def expression(self) -> FreeParameterExpression:
         return self._expression
+
+
+class _FloatFreeParameterExpression(OQPyExpression):
+    def __init__(self, expression: FreeParameterExpression):
+        self.name = f"({expression})"
+        self.type = float64
+        self._expression = expression
+
+    def to_ast(self, program: Program = None) -> ast.Expression:
+        return ast.Identifier(name=self.name)
 
 
 class _FreeParameterTransformer(QASMTransformer):
