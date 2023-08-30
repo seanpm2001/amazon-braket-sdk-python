@@ -13,7 +13,6 @@
 from typing import Dict, Union
 
 from openpulse import ast
-from openqasm3.ast import DurationLiteral
 from openqasm3.visitor import QASMTransformer
 from oqpy import Program, float64
 from oqpy.base import OQPyExpression
