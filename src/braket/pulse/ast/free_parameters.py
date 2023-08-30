@@ -13,7 +13,6 @@
 from typing import Dict, Union
 
 from openpulse import ast
-from openqasm3.ast import DurationLiteral
 from openqasm3.visitor import QASMTransformer
 from oqpy import Program, float64
 from oqpy.base import OQPyExpression
@@ -33,14 +32,17 @@ class _FreeParameterExpressionIdentifier(ast.Identifier):
         return self._expression
 
 
-class _FloatFreeParameterExpression(OQPyExpression):
+class _DurationFreeParameterExpressionIdentifier(_FreeParameterExpressionIdentifier):
+    pass
+
+
+class _DurationFreeParameterExpression(OQPyExpression):
     def __init__(self, expression: FreeParameterExpression):
-        self.name = f"({expression})"
         self.type = float64
         self._expression = expression
 
-    def to_ast(self, program: Program = None) -> ast.Expression:
-        return ast.Identifier(name=self.name)
+    def to_ast(self, program: Program = None) -> ast.Identifier:
+        return _DurationFreeParameterExpressionIdentifier(self._expression)
 
 
 class _FreeParameterTransformer(QASMTransformer):
@@ -60,22 +62,25 @@ class _FreeParameterTransformer(QASMTransformer):
         Returns:
             Union[_FreeParameterExpressionIdentifier, FloatLiteral]: The transformed expression.
         """
+        print("visit__FreeParameterExpressionIdentifier", identifier)
         new_value = identifier.expression.subs(self.param_values)
         if isinstance(new_value, FreeParameterExpression):
             return _FreeParameterExpressionIdentifier(new_value)
         else:
             return ast.FloatLiteral(new_value)
 
-    def visit_DurationLiteral(self, duration_literal: DurationLiteral) -> DurationLiteral:
-        """Visit Duration Literal.
-            node.value, node.unit (node.unit.name, node.unit.value)
-            1
+    def visit__DurationFreeParameterExpressionIdentifier(
+        self, identifier: _DurationFreeParameterExpressionIdentifier
+    ) -> Union[_DurationFreeParameterExpressionIdentifier, ast.FloatLiteral]:
+        """Visit a DurationFreeParameterExpression.
         Args:
-            duration_literal (DurationLiteral): The duration literal.
+            identifier (_DurationFreeParameterExpressionIdentifier): The identifier.
+
         Returns:
-            DurationLiteral: The transformed duration literal.
-        """
-        duration = duration_literal.value
-        if not isinstance(duration, FreeParameterExpression):
-            return duration_literal
-        return DurationLiteral(duration.subs(self.param_values), duration_literal.unit)
+            Union[_DurationFreeParameterExpressionIdentifier, FloatLiteral]: The transformed expression.
+        """  # noqa: E501
+        new_value = identifier.expression.subs(self.param_values)
+        if isinstance(new_value, _DurationFreeParameterExpression):
+            return _DurationFreeParameterExpressionIdentifier(new_value)
+        else:
+            return ast.FloatLiteral(new_value)

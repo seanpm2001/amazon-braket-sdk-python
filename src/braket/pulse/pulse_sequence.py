@@ -27,7 +27,7 @@ from braket.parametric.free_parameter_expression import FreeParameterExpression
 from braket.parametric.parameterizable import Parameterizable
 from braket.pulse.ast.approximation_parser import _ApproximationParser
 from braket.pulse.ast.free_parameters import (
-    _FloatFreeParameterExpression,
+    _DurationFreeParameterExpression,
     _FreeParameterExpressionIdentifier,
     _FreeParameterTransformer,
 )
@@ -186,7 +186,7 @@ class PulseSequence:
         if isinstance(duration, FreeParameterExpression):
             for p in duration.expression.free_symbols:
                 self._free_parameters.add(FreeParameter(p.name))
-            duration = convert_float_to_duration(_FloatFreeParameterExpression(duration))
+            duration = convert_float_to_duration(_DurationFreeParameterExpression(duration))
         if not isinstance(qubits_or_frames, QubitSet):
             if not isinstance(qubits_or_frames, list):
                 qubits_or_frames = [qubits_or_frames]

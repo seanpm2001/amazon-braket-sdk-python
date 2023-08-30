@@ -37,7 +37,7 @@ from braket.parametric.free_parameter_expression import (
 )
 from braket.parametric.parameterizable import Parameterizable
 from braket.pulse.ast.free_parameters import (
-    _FloatFreeParameterExpression,
+    _DurationFreeParameterExpression,
     _FreeParameterExpressionIdentifier,
 )
 
@@ -467,7 +467,7 @@ def _map_to_oqpy_type(
 ) -> Union[_FreeParameterExpressionIdentifier, OQPyExpression]:
     if isinstance(parameter, FreeParameterExpression):
         return (
-            convert_float_to_duration(_FloatFreeParameterExpression(parameter))
+            convert_float_to_duration(_DurationFreeParameterExpression(parameter))
             if is_duration_type
             else _FreeParameterExpressionIdentifier(parameter)
         )
